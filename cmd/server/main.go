@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/evertras/sample-go-app/internal/server"
 )
@@ -17,13 +17,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger, err := zap.NewProduction()
-	defer logger.Sync()
+	zapLevel := zap.NewAtomicLevelAt(zapcore.DebugLevel)
 
-	if err != nil {
-		fmt.Println("Failed to create logger:", err)
-		os.Exit(1)
-	}
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.Lock(os.Stdout),
+		zapLevel,
+	))
+	defer logger.Sync()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
