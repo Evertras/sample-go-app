@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/evertras/sample-go-app/internal/server"
+	"github.com/mattn/go-isatty"
 )
 
 const address = "0.0.0.0:8088"
@@ -19,8 +20,16 @@ func main() {
 
 	zapLevel := zap.NewAtomicLevelAt(zapcore.DebugLevel)
 
+	var encoder zapcore.Encoder
+
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		encoder = zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+	} else {
+		encoder = zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+	}
+
 	logger := zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		encoder,
 		zapcore.Lock(os.Stdout),
 		zapLevel,
 	))
