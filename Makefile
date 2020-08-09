@@ -9,3 +9,6 @@ test:
 run: bin/server
 	@./bin/server
 
+docker:
+	docker build -t "evertras/sample-go-app" .
+
