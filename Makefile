@@ -6,3 +6,6 @@ bin/server: $(GO_FILES)
 test:
 	ginkgo ./...
 
+run: bin/server
+	@./bin/server
+
