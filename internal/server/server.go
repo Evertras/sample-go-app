@@ -12,7 +12,7 @@ import (
 )
 
 type Server struct {
-	inner http.Server
+	inner  http.Server
 	logger *zap.Logger
 }
 
@@ -28,12 +28,50 @@ func handlerDelayed(timeout time.Duration) http.HandlerFunc {
 	}
 }
 
+func handlerHealthz() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// If we can call this at all, we're healthy
+		w.Write([]byte("ok"))
+	}
+}
+
+func middlewareLogRequest(handler http.HandlerFunc, logger *zap.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Debug(
+			"Endpoint called",
+			zap.String("method", r.Method),
+			zap.String("path", r.URL.Path),
+		)
+
+		handler(w, r)
+	}
+}
+
 func New(logger *zap.Logger, addr string) *Server {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", handlerMessage("Hello from base"))
-	mux.HandleFunc("/delay", handlerDelayed(time.Second*2))
-	//mux.HandleFunc("/healthz", handlerHealth())
+	mux.HandleFunc(
+		"/",
+		middlewareLogRequest(
+			handlerMessage("Hello from base"),
+			logger,
+		))
+
+	mux.HandleFunc(
+		"/delay",
+		middlewareLogRequest(
+			handlerDelayed(time.Second*2),
+			logger,
+		),
+	)
+
+	mux.HandleFunc(
+		"/healthz",
+		middlewareLogRequest(
+			handlerHealthz(),
+			logger,
+		),
+	)
 
 	return &Server{
 		inner: http.Server{
