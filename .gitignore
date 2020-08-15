@@ -5,6 +5,11 @@
 *.so
 *.dylib
 
+# IDE/OS stuff
+.vim
+.vscode
+.DS_Store
+
 # Test binary, built with `go test -c`
 *.test
 
