@@ -97,7 +97,7 @@ var _ = Describe("db", func() {
 		BeforeEach(func() {
 			existingDogs = []Dog{
 				genDog(1234, "Genji", "Ginkgo", "Tokyo"),
-				genDog(1234, "Rex", "Ginkgo", "New York"),
+				genDog(44444, "Rex", "Ginkgo", "New York"),
 			}
 
 			insertDogs := []interface{}{}
