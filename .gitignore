@@ -16,8 +16,8 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# We want to use vendor for some tools, but don't want to check it in
+vendor/
 
 # Built binaries
 bin/

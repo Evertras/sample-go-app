@@ -71,3 +71,14 @@ var _ = Describe("handlerMessage", func() {
 		})
 	})
 })
+
+var _ = Describe("handlerHealthz", func() {
+	It("returns 200 as its status code", func() {
+		handler := handlerHealthz()
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/healthz", nil)
+		handler(w, r)
+
+		Expect(w.Result().StatusCode).To(Equal(200))
+	})
+})

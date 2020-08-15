@@ -1,11 +1,12 @@
-.git
+.DS_Store
 .dockerignore
+.git
 .vim
 .vscode
-.DS_Store
-README.md
 LICENSE
+README.md
 bin/
+coverage.out
 deploy/
 skaffold.yaml
 

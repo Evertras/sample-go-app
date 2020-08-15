@@ -1,24 +1,32 @@
 ################################################################################
 # Common commands
-test:
-	ginkgo ./...
+test: ./vendor
+	go run ./vendor/github.com/onsi/ginkgo/ginkgo -r ./internal
 
-run: bin/server
+coverage: coverage.out ./vendor
+	@go tool cover -func=coverage.out
+	@go tool cover -html=coverage.out
+
+run: bin/server ./vendor
 	@./bin/server
 
-skaffold-dev: ./bin/skaffold
+skaffold-dev: ./bin/skaffold ./vendor
 	./bin/skaffold dev --port-forward
 
-docker:
+docker: ./vendor
 	docker build -t "evertras/sample-go-app" .
 
 clean:
 	rm -rf bin
+	rm -rf vendor
 
 ################################################################################
 # Dependencies
 GO_FILES = $(shell find . -type f -name '*.go')
 UNAME = $(shell uname)
+
+coverage.out: $(GO_FILES)
+	go test -coverprofile=coverage.out ./...
 
 # Bin contains any built binaries or tools
 ./bin:
@@ -40,4 +48,8 @@ else
 	@exit 1
 endif
 	chmod +x ./bin/skaffold
+
+./vendor: go.mod go.sum
+	rm -rf vendor
+	go mod vendor
 
