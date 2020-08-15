@@ -17,4 +17,10 @@ spec:
       containers:
         - name: sample-go-app
           image: sample-go-app
+          livenessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            httpGet:
+              path: /healthz
+              port: 8080
 
