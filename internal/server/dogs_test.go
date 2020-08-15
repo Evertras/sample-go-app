@@ -104,7 +104,7 @@ var _ = Describe("handlerGetAllDogs", func() {
 				Expect(err).NotTo(HaveOccurred(), "Failed to unmarshal response")
 				Expect(len(parsedDogs)).To(Equal(len(dbDogs)), "Returned wrong number of dogs")
 
-				for i, dbDog := range(dbDogs) {
+				for i, dbDog := range dbDogs {
 					Expect(parsedDogs[i]).To(Equal(fromDbDog(dbDog)))
 				}
 			})

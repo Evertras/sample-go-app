@@ -16,9 +16,9 @@ type Dog struct {
 }
 
 func fromDbDog(dbDog db.Dog) Dog {
-	return Dog {
-		Id: dbDog.Id,
-		Name: dbDog.Name,
+	return Dog{
+		Id:       dbDog.Id,
+		Name:     dbDog.Name,
 		Location: dbDog.Location,
 	}
 }
