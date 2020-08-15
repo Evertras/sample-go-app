@@ -31,7 +31,7 @@ var _ = Describe("handlerDelayed", func() {
 		It("completes by the specified timeout", func(done Done) {
 			handler(w, r)
 			close(done)
-		}, timeout.Seconds() + 0.1)
+		}, timeout.Seconds()+0.1)
 
 		It("waits for the specified amount of time within 5 milliseconds", func(done Done) {
 			now := time.Now()
@@ -40,7 +40,7 @@ var _ = Describe("handlerDelayed", func() {
 			finishTime := time.Now()
 			Expect(finishTime).To(BeTemporally("~", expectedDone, time.Millisecond*5))
 			close(done)
-		}, timeout.Seconds() + 0.5)
+		}, timeout.Seconds()+0.5)
 	})
 })
 

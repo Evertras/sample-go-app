@@ -20,6 +20,10 @@ clean:
 	rm -rf bin
 	rm -rf vendor
 
+fmt: $(GO_FILES)
+	@go fmt ./internal/...
+	@go fmt ./cmd/...
+
 ################################################################################
 # Dependencies
 GO_FILES = $(shell find . -type f -name '*.go')
