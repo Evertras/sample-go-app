@@ -1,4 +1,11 @@
 ################################################################################
+# This Makefile builds/generates/downloads any dependencies/tools in the project.
+# If a machine with Go and Docker cannot run any of these commands, that's a bug
+# in the Makefile and should be fixed ASAP.
+#
+# Except Windows.  GLHF, PRs accepted <3
+
+################################################################################
 # Common commands
 test: ./vendor
 	go run ./vendor/github.com/onsi/ginkgo/ginkgo -r ./internal
