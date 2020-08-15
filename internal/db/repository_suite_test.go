@@ -34,7 +34,8 @@ var _ = Describe("db", func() {
 	var mongoClient *mongo.Client
 	var repository *Repository
 
-	// Overkill but fun for now
+	// Overkill as this will run for every It, but fast enough for now and having
+	// total reliability is nice...
 	BeforeEach(func() {
 		ctx = context.Background()
 		req := testcontainers.ContainerRequest{
@@ -50,22 +51,21 @@ var _ = Describe("db", func() {
 			ContainerRequest: req,
 			Started:          true,
 		})
-
 		Expect(err).ToNot(HaveOccurred())
 		mongoHost, err := mongoContainer.Host(ctx)
 		Expect(err).ToNot(HaveOccurred())
 		mongoPort, err := mongoContainer.MappedPort(ctx, "27017")
+		Expect(err).ToNot(HaveOccurred())
+
 		mongoClient, err = mongo.Connect(
 			ctx,
 			options.Client().ApplyURI(
 				fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort),
 			),
 		)
-
 		Expect(err).ToNot(HaveOccurred())
 
 		err = mongoClient.Ping(ctx, nil)
-
 		Expect(err).ToNot(HaveOccurred())
 
 		repository = New(mongoClient)
@@ -108,12 +108,14 @@ var _ = Describe("db", func() {
 
 			dogCollection := mongoClient.Database(mongoDbName).Collection(mongoDogCollection)
 
+			Expect(existingDogs).ToNot(HaveLen(0))
 			Expect(dogCollection).ToNot(BeNil(), "Dog collection not found")
+
 			_, err := dogCollection.DeleteMany(ctx, bson.D{})
 			Expect(err).ToNot(HaveOccurred())
+
 			result, err := dogCollection.InsertMany(ctx, insertDogs)
 			Expect(err).ToNot(HaveOccurred())
-
 			Expect(result.InsertedIDs).To(HaveLen(len(existingDogs)))
 		})
 
@@ -122,7 +124,6 @@ var _ = Describe("db", func() {
 				dogs, err := repository.GetAllDogs(ctx)
 
 				Expect(err).ToNot(HaveOccurred())
-				Expect(dogs).To(HaveLen(len(existingDogs)))
 				Expect(dogs).To(ConsistOf(existingDogs))
 			})
 		})
