@@ -12,7 +12,7 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-const address = "0.0.0.0:8088"
+const address = "0.0.0.0:8080"
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())

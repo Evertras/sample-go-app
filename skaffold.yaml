@@ -1,0 +1,17 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+metadata:
+  name: sample-go-app
+build:
+  artifacts:
+  - image: sample-go-app
+deploy:
+  kubectl:
+    manifests:
+    - deploy/k8s-local-dev.yaml
+portForward:
+  - resourceType: Deployment
+    resourceName: sample-go-app
+    port: 8080
+    localPort: 8080
+
