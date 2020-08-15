@@ -83,3 +83,7 @@ Uses [MongoDB](https://www.mongodb.com/) to store some data.  Just an excuse
 to play with some of its streaming features a little more, no real reason otherwise.
 It also gives us an external dependency that our tooling will have to deal with.
 
+Uses [Zap](https://github.com/uber-go/zap) for logging because it's fast and I
+wanted to get some more hands on time with it to see if the API is as painful
+as I thought it would be.
+
