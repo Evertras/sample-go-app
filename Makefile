@@ -15,7 +15,7 @@
 #
 # This is the default command and is a good sanity check.
 test: ./vendor
-	go run ./vendor/github.com/onsi/ginkgo/ginkgo -r ./internal
+	go run ./vendor/github.com/onsi/ginkgo/ginkgo -r --progress --succinct=false ./internal
 
 # Views test coverage as a pretty HTML document
 coverage: coverage.out ./vendor
