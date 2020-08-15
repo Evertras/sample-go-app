@@ -32,6 +32,8 @@ func (r *Repository) GetAllDogs(ctx context.Context) ([]Dog, error) {
 		return nil, fmt.Errorf("dogCollection.Find: %w", err)
 	}
 
+	defer cursor.Close(ctx)
+
 	var results []Dog
 	err = cursor.All(ctx, &results)
 
