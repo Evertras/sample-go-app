@@ -87,3 +87,7 @@ Uses [Zap](https://github.com/uber-go/zap) for logging because it's fast and I
 wanted to get some more hands on time with it to see if the API is as painful
 as I thought it would be.
 
+Uses [Test Containers](https://github.com/testcontainers/testcontainers-go) for
+testing that requires eternal dependencies, such as our database repository. This
+lets us create reproducible/reliable tests that are still fast.
+

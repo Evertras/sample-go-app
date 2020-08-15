@@ -2,16 +2,42 @@ package db
 
 import (
 	"context"
-	"errors"
+	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+const (
+	mongoDbName = "sampleapp"
+
+	mongoDogCollection = "dogs"
 )
 
 type Repository struct {
+	client *mongo.Client
+}
+
+func New(client *mongo.Client) *Repository {
+	return &Repository{
+		client,
+	}
 }
 
 func (r *Repository) GetAllDogs(ctx context.Context) ([]Dog, error) {
-	return nil, errors.New("not implemented")
-}
+	dogCollection := r.client.Database(mongoDbName).Collection(mongoDogCollection)
+	cursor, err := dogCollection.Find(ctx, bson.D{})
 
-func (r *Repository) GetDog(ctx context.Context) (Dog, error) {
-	return Dog{}, errors.New("not implemented")
+	if err != nil {
+		return nil, fmt.Errorf("dogCollection.Find: %w", err)
+	}
+
+	var results []Dog
+	err = cursor.All(ctx, &results)
+
+	if err != nil {
+		return nil, fmt.Errorf("cursor.All: %w", err)
+	}
+
+	return results, nil
 }
