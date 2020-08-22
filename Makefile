@@ -73,19 +73,21 @@ coverage.out: $(GO_FILES)
 ./bin/server: $(GO_FILES) ./bin
 	CGO_ENABLED=0 go build -o bin/server ./cmd/server/main.go
 
+SKAFFOLD_VERSION = v1.13.2
 ./bin/skaffold: ./bin
 ifeq ($(UNAME), Darwin)
 	@echo Downloading Skaffold for Mac
-	curl -L -o ./bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-darwin-amd64
+	curl -L -o ./bin/skaffold https://storage.googleapis.com/skaffold/releases/$(SKAFFOLD_VERSION)/skaffold-darwin-amd64
 else ifeq ($(UNAME), Linux)
 	@echo Downloading Skaffold for Linux
-	curl -L -o ./bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+	curl -L -o ./bin/skaffold https://storage.googleapis.com/skaffold/releases/$(SKAFFOLD_VERSION)/skaffold-linux-amd64
 else
 	# Windows gets rekt
 	@echo Download the proper skaffold binary for your OS to ./bin/skaffold to continue
 	@exit 1
 endif
 	chmod +x ./bin/skaffold
+	./bin/skaffold version
 
 ./vendor: go.mod go.sum
 	rm -rf vendor
