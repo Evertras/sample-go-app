@@ -29,43 +29,47 @@ func genDog(id int64, name string, owner string, location string) Dog {
 }
 
 var _ = Describe("db", func() {
-	var ctx context.Context
+	var ctxTest context.Context
 	var mongoContainer testcontainers.Container
 	var mongoClient *mongo.Client
 	var repository *Repository
 
-	// Overkill as this will run for every It, but fast enough for now and having
-	// total reliability is nice...
-	BeforeEach(func() {
-		ctx = context.Background()
+	BeforeSuite(func() {
+		ctxContainer := context.Background()
+
 		req := testcontainers.ContainerRequest{
 			Image: "mongo:4.4",
 			ExposedPorts: []string{
 				"27017/tcp",
 			},
-			WaitingFor: wait.ForLog("aiting for connections"),
+			WaitingFor: wait.ForLog("Waiting for connections"),
 		}
 
 		var err error
-		mongoContainer, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		mongoContainer, err = testcontainers.GenericContainer(ctxContainer, testcontainers.GenericContainerRequest{
 			ContainerRequest: req,
 			Started:          true,
 		})
 		Expect(err).ToNot(HaveOccurred())
-		mongoHost, err := mongoContainer.Host(ctx)
+	})
+
+	BeforeEach(func() {
+		ctxTest = context.Background()
+
+		mongoHost, err := mongoContainer.Host(ctxTest)
 		Expect(err).ToNot(HaveOccurred())
-		mongoPort, err := mongoContainer.MappedPort(ctx, "27017")
+		mongoPort, err := mongoContainer.MappedPort(ctxTest, "27017")
 		Expect(err).ToNot(HaveOccurred())
 
 		mongoClient, err = mongo.Connect(
-			ctx,
+			ctxTest,
 			options.Client().ApplyURI(
 				fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort),
 			),
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		err = mongoClient.Ping(ctx, nil)
+		err = mongoClient.Ping(ctxTest, nil)
 		Expect(err).ToNot(HaveOccurred())
 
 		repository = New(mongoClient)
@@ -76,13 +80,13 @@ var _ = Describe("db", func() {
 			dogCollection := mongoClient.Database(mongoDbName).Collection(mongoDogCollection)
 
 			Expect(dogCollection).ToNot(BeNil(), "Dog collection not found")
-			_, err := dogCollection.DeleteMany(ctx, bson.D{})
+			_, err := dogCollection.DeleteMany(ctxTest, bson.D{})
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Describe("GetAllDogs", func() {
 			It("returns an empty list of dogs", func() {
-				dogs, err := repository.GetAllDogs(ctx)
+				dogs, err := repository.GetAllDogs(ctxTest)
 
 				Expect(err).ToNot(HaveOccurred())
 
@@ -111,17 +115,17 @@ var _ = Describe("db", func() {
 			Expect(existingDogs).ToNot(HaveLen(0))
 			Expect(dogCollection).ToNot(BeNil(), "Dog collection not found")
 
-			_, err := dogCollection.DeleteMany(ctx, bson.D{})
+			_, err := dogCollection.DeleteMany(ctxTest, bson.D{})
 			Expect(err).ToNot(HaveOccurred())
 
-			result, err := dogCollection.InsertMany(ctx, insertDogs)
+			result, err := dogCollection.InsertMany(ctxTest, insertDogs)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result.InsertedIDs).To(HaveLen(len(existingDogs)))
 		})
 
 		Describe("GetAllDogs", func() {
 			It("returns all dogs", func() {
-				dogs, err := repository.GetAllDogs(ctx)
+				dogs, err := repository.GetAllDogs(ctxTest)
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(dogs).To(ConsistOf(existingDogs))
@@ -129,7 +133,7 @@ var _ = Describe("db", func() {
 		})
 	})
 
-	AfterEach(func() {
-		mongoContainer.Terminate(ctx)
+	AfterSuite(func() {
+		mongoContainer.Terminate(ctxTest)
 	})
 })
