@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"go.uber.org/zap"
 )
 
@@ -83,33 +81,30 @@ func New(logger *zap.Logger, addr string) *Server {
 }
 
 func (s *Server) ListenAndServe(ctx context.Context) error {
-	errGroup := &errgroup.Group{}
+	errServer := make(chan error, 1)
+	go func() {
+		errServer <- s.inner.ListenAndServe()
+	}()
 
-	errGroup.Go(func() error {
-		return s.inner.ListenAndServe()
-	})
+	select {
+	case err := <-errServer:
+		return fmt.Errorf("failed to listen: %w", err)
 
-	<-ctx.Done()
+	case <-ctx.Done():
 
-	timeout := time.Second * 5
+		timeout := time.Second * 5
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
 
-	s.logger.Info("Shutting down gracefully...", zap.Duration("timeout", timeout))
-	err := s.inner.Shutdown(ctx)
+		s.logger.Info("Shutting down gracefully...", zap.Duration("timeout", timeout))
+		err := s.inner.Shutdown(ctx)
 
-	if err != nil {
-		return fmt.Errorf("failed to Shutdown(): %w", err)
+		if err != nil {
+			return fmt.Errorf("failed to Shutdown(): %w", err)
+		}
+
+		s.logger.Info("Graceful shutdown complete")
+		return nil
 	}
-
-	err = errGroup.Wait()
-
-	if err != http.ErrServerClosed {
-		return err
-	}
-
-	s.logger.Info("Graceful shutdown complete")
-
-	return nil
 }
